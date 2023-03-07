@@ -14,14 +14,19 @@ from Plot import Plot_RTS as Plot
 
 if torch.cuda.is_available():
    dev = torch.device("cuda:0")  # you can continue going on here, like cuda:1 cuda:2....etc.
-   torch.set_default_tensor_type('torch.cuda.FloatTensor')
+   torch.set_default_tensor_type(torch.cuda.FloatTensor)
    print("Running on the GPU")
 else:
    dev = torch.device("cpu")
-   torch.set_default_tensor_type('torch.FloatTensor')
+   torch.set_default_tensor_type(torch.FloatTensor)
    print("Running on the CPU")
 
-   
+print(f"Default device: {torch.tensor([1.,2]).get_device()}")
+# dev = torch.device("cpu")
+# torch.set_default_tensor_type('torch.FloatTensor')
+# print("Running on the CPU")
+
+
 
 print("Pipeline Start")
 
@@ -68,6 +73,8 @@ for index in range(0,len(r2)):
    # DataGen(sys_model, dataFolderName + dataFileName[index], T, T_test,randomInit=False)
    print("Data Load")
    [train_input, train_target, cv_input, cv_target, test_input, test_target] = DataLoader_GPU(dataFolderName + dataFileName[index])
+   [train_input_cpu, train_target_cpu, cv_input_cpu, cv_target_cpu, test_input_cpu, test_target_cpu] = DataLoader(dataFolderName + dataFileName[index])
+   print(f"train input device: {train_input_cpu.get_device()}")
    print("trainset size:",train_target.size())
    print("cvset size:",cv_target.size())
    print("testset size:",test_target.size())
@@ -78,18 +85,18 @@ for index in range(0,len(r2)):
    print("Evaluate Kalman Filter True")
    [MSE_KF_linear_arr, MSE_KF_linear_avg, MSE_KF_dB_avg] = KFTest(sys_model, test_input, test_target)
    print("Evaluate Kalman Filter Partial")
-   [MSE_KF_linear_arr_partialh, MSE_KF_linear_avg_partialh, MSE_KF_dB_avg_partialh] = KFTest(sys_model_partialh, test_input, test_target)
+   [MSE_KF_linear_arr_partialh, MSE_KF_linear_avg_partialh, MSE_KF_dB_avg_partialh] = KFTest(sys_model_partialh, test_input_cpu, test_target_cpu)
 
 
 
    DatafolderName = 'Filters/Linear' + '/'
    DataResultName = 'KF_'+ dataFileName[index]
    torch.save({
-               'MSE_KF_linear_arr': MSE_KF_linear_arr,
-               'MSE_KF_dB_avg': MSE_KF_dB_avg,
-               'MSE_KF_linear_arr_partialh': MSE_KF_linear_arr_partialh,
-               'MSE_KF_dB_avg_partialh': MSE_KF_dB_avg_partialh,
-               }, DatafolderName+DataResultName)
+      'MSE_KF_linear_arr': MSE_KF_linear_arr,
+      'MSE_KF_dB_avg': MSE_KF_dB_avg,
+      'MSE_KF_linear_arr_partialh': MSE_KF_linear_arr_partialh,
+      'MSE_KF_dB_avg_partialh': MSE_KF_dB_avg_partialh,
+   }, DatafolderName+DataResultName)
 
    ##################
    ###  KalmanNet ###
@@ -104,12 +111,12 @@ for index in range(0,len(r2)):
    KNet_Pipeline.setModel(KNet_model)
    KNet_Pipeline.setTrainingParams(n_Epochs=500, n_Batch=30, learningRate=1E-3, weightDecay=1E-5)
 
-   # KNet_Pipeline.model = torch.load(modelFolder+"model_KNet.pt")
+   KNet_Pipeline.model = torch.load(modelFolder+"model_KalmanNet.pt")
    KNet_Pipeline.NNTrain(N_E, train_input, train_target, N_CV, cv_input, cv_target)
    [KNet_MSE_test_linear_arr, KNet_MSE_test_linear_avg, KNet_MSE_test_dB_avg, KNet_test] = KNet_Pipeline.NNTest(N_T, test_input, test_target)
    KNet_Pipeline.save()
 
-   
+
    print("KNet with partial model info")
    modelFolder = 'KNet' + '/'
    KNet_Pipeline = Pipeline_KF(strTime, "KNet", "KNetPartial_"+ dataFileName[index])
@@ -119,7 +126,7 @@ for index in range(0,len(r2)):
    KNet_Pipeline.setModel(KNet_model)
    KNet_Pipeline.setTrainingParams(n_Epochs=500, n_Batch=30, learningRate=1E-3, weightDecay=1E-5)
 
-   # KNet_Pipeline.model = torch.load(modelFolder+"model_KNet.pt")
+   KNet_Pipeline.model = torch.load(modelFolder+"model_KalmanNet.pt")
    KNet_Pipeline.NNTrain(N_E, train_input, train_target, N_CV, cv_input, cv_target)
    [KNet_MSE_test_linear_arr, KNet_MSE_test_linear_avg, KNet_MSE_test_dB_avg, KNet_test] = KNet_Pipeline.NNTest(N_T, test_input, test_target)
    KNet_Pipeline.save()

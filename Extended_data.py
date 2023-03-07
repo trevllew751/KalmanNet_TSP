@@ -2,6 +2,7 @@ import torch
 import math
 import os
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
+torch.set_default_tensor_type(torch.cuda.FloatTensor)
 
 #######################
 ### Size of DataSet ###
@@ -43,7 +44,7 @@ H10 = torch.tensor([[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
                     [0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                     [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                     [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]])
-
+print(f"F10 device: {F10.get_device()}")
 ############
 ## 2 x 2 ###
 ############
@@ -129,7 +130,8 @@ def DataGen(SysModel_data, fileName, T, T_test,randomInit=False):
 
 def DataLoader(fileName):
 
-    [training_input, training_target, cv_input, cv_target, test_input, test_target] = torch.load(fileName, map_location=torch.device("cpu"))
+    [training_input, training_target, cv_input, cv_target, test_input, test_target] = torch.load(fileName, map_location=torch.device("cuda:0"))
+    print(f"Training input device: {training_input.get_device()}")
     return [training_input, training_target, cv_input, cv_target, test_input, test_target]
 
 def DataLoader_GPU(fileName):
@@ -143,7 +145,7 @@ def DataLoader_GPU(fileName):
     return [training_input, training_target, cv_input, cv_target, test_input, test_target]
 
 def DecimateData(all_tensors, t_gen,t_mod, offset=0):
-    
+
     # ratio: defines the relation between the sampling time of the true process and of the model (has to be an integer)
     ratio = round(t_mod/t_gen)
 
@@ -160,7 +162,7 @@ def DecimateData(all_tensors, t_gen,t_mod, offset=0):
     return all_tensors_out
 
 def Decimate_and_perturbate_Data(true_process, delta_t, delta_t_mod, N_examples, h, lambda_r, offset=0):
-    
+
     # Decimate high resolution process
     decimated_process = DecimateData(true_process, delta_t, delta_t_mod, offset)
 
