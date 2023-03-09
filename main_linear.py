@@ -12,19 +12,19 @@ from KalmanFilter_test import KFTest
 
 from Plot import Plot_RTS as Plot
 
-if torch.cuda.is_available():
-   dev = torch.device("cuda:0")  # you can continue going on here, like cuda:1 cuda:2....etc.
-   torch.set_default_tensor_type(torch.cuda.FloatTensor)
-   print("Running on the GPU")
-else:
-   dev = torch.device("cpu")
-   torch.set_default_tensor_type(torch.FloatTensor)
-   print("Running on the CPU")
-
-print(f"Default device: {torch.tensor([1.,2]).get_device()}")
-# dev = torch.device("cpu")
-# torch.set_default_tensor_type('torch.FloatTensor')
-# print("Running on the CPU")
+# if torch.cuda.is_available():
+#    dev = torch.device("cuda:0")  # you can continue going on here, like cuda:1 cuda:2....etc.
+#    torch.set_default_tensor_type(torch.cuda.FloatTensor)
+#    print("Running on the GPU")
+# else:
+#    dev = torch.device("cpu")
+#    torch.set_default_tensor_type(torch.FloatTensor)
+#    print("Running on the CPU")
+#
+# print(f"Default device: {torch.tensor([1.,2]).get_device()}")
+dev = torch.device("cpu")
+torch.set_default_tensor_type('torch.FloatTensor')
+print("Running on the CPU")
 
 
 
@@ -72,9 +72,9 @@ for index in range(0,len(r2)):
    # print("Start Data Gen")
    # DataGen(sys_model, dataFolderName + dataFileName[index], T, T_test,randomInit=False)
    print("Data Load")
-   [train_input, train_target, cv_input, cv_target, test_input, test_target] = DataLoader_GPU(dataFolderName + dataFileName[index])
-   [train_input_cpu, train_target_cpu, cv_input_cpu, cv_target_cpu, test_input_cpu, test_target_cpu] = DataLoader(dataFolderName + dataFileName[index])
-   print(f"train input device: {train_input_cpu.get_device()}")
+   # [train_input, train_target, cv_input, cv_target, test_input, test_target] = DataLoader_GPU(dataFolderName + dataFileName[index])
+   [train_input, train_target, cv_input, cv_target, test_input, test_target] = DataLoader(dataFolderName + dataFileName[index])
+   # print(f"train input device: {train_input.get_device()}")
    print("trainset size:",train_target.size())
    print("cvset size:",cv_target.size())
    print("testset size:",test_target.size())
@@ -85,7 +85,7 @@ for index in range(0,len(r2)):
    print("Evaluate Kalman Filter True")
    [MSE_KF_linear_arr, MSE_KF_linear_avg, MSE_KF_dB_avg] = KFTest(sys_model, test_input, test_target)
    print("Evaluate Kalman Filter Partial")
-   [MSE_KF_linear_arr_partialh, MSE_KF_linear_avg_partialh, MSE_KF_dB_avg_partialh] = KFTest(sys_model_partialh, test_input_cpu, test_target_cpu)
+   [MSE_KF_linear_arr_partialh, MSE_KF_linear_avg_partialh, MSE_KF_dB_avg_partialh] = KFTest(sys_model_partialh, test_input, test_target)
 
 
 

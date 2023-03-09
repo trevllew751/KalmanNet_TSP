@@ -2,7 +2,7 @@ import torch
 import math
 import os
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
-torch.set_default_tensor_type(torch.cuda.FloatTensor)
+# torch.set_default_tensor_type(torch.cuda.FloatTensor)
 
 #######################
 ### Size of DataSet ###
@@ -130,7 +130,7 @@ def DataGen(SysModel_data, fileName, T, T_test,randomInit=False):
 
 def DataLoader(fileName):
 
-    [training_input, training_target, cv_input, cv_target, test_input, test_target] = torch.load(fileName, map_location=torch.device("cuda:0"))
+    [training_input, training_target, cv_input, cv_target, test_input, test_target] = torch.load(fileName, map_location=torch.device("cpu"))
     print(f"Training input device: {training_input.get_device()}")
     return [training_input, training_target, cv_input, cv_target, test_input, test_target]
 
