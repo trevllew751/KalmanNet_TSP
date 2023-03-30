@@ -107,8 +107,12 @@ for index in range(0, len(r)):
    # q and r are loaded from above, the rest are in the model.py and parameters.py of the Lorenz Attractor model
    # will probably need to create new variables specifically for auv
    # f is the state transition function and can't really be passed directly check sins_ukf.cpp in AUV_Fault_Detection for how they get f from std::bind
-   auv_sys_model = SystemModel(f, q[index], h, r[index;, T, T_test, m, n, "AUV"]) #need to figure out these parameters   
+   # I actually believe that f is supposed to be approximated through the training from a paper I read on UKF estimation. Might be incorrect but makes sense
+   auv_sys_model = SystemModel(f, qopt[index], h, r[index;, T, T_test, m, n, "AUV"]) #need to figure out these parameters   
+   auv_sys_model.InitSequence(m1x_0, m2x_0)
    # m1x_0 & m2x_0 are also from model file 
+   #optimal q is used but the test may need to be changed to use the UKF instead. Im not sure how the optimal q test works but it is also tested with UKF so maybe not but idk bout dimensions
+   
  
    sys_model = SystemModel(f, q[index], h, r[index], T, T_test, m, n,"Lor")
    sys_model.InitSequence(m1x_0, m2x_0)
@@ -219,6 +223,9 @@ for index in range(0, len(r)):
    #    [MSE_PF_linear_arr_partial, MSE_PF_linear_avg_partial, MSE_PF_dB_avg_partial, PF_out_partial] = PFTest( sys_model_partialh_searchr, test_input, test_target)
 
    # need to comment these out and perform a UKF test for the AUV
+   
+   print("Evaluate AUV UKF True")
+   [AUV_MSE_UKF_linear_arr, AUV_MSE_UKF_linear_avg, AUV_MSE_UKF_dB_avg, AUV_UKF_out] = AUV690_UKFTest(auv_sys_model, test_input, test_target) #still the optq model. it can be swapped above
 
    print("Evaluate EKF true")
    [MSE_EKF_linear_arr, MSE_EKF_linear_avg, MSE_EKF_dB_avg, EKF_KG_array, EKF_out] = EKFTest(sys_model_optq, test_input, test_target)

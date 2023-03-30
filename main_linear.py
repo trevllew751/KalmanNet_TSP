@@ -8,6 +8,8 @@ from Pipeline_KF import Pipeline_KF
 from KalmanNet_nn import KalmanNetNN
 from datetime import datetime
 
+import pandas as pd
+
 from KalmanFilter_test import KFTest
 
 from Plot import Plot_RTS as Plot
@@ -48,6 +50,14 @@ r2 = torch.tensor([10,1.,0.1,1e-2,1e-3])
 vdB = -20 # ratio v=q2/r2
 v = 10**(vdB/10)
 q2 = torch.mul(v,r2)
+
+
+
+#train_data = pd.read_csv('avl_log.csv')
+#train_tensor = torch.tensor(train_data.values)
+#print("Training input data: " + str(train_input))
+#print("Training target data: " + str(train_target))
+#print("N_CV: " + str(N_CV))
 
 for index in range(0,len(r2)):
 
@@ -98,6 +108,9 @@ for index in range(0,len(r2)):
       'MSE_KF_dB_avg_partialh': MSE_KF_dB_avg_partialh,
    }, DatafolderName+DataResultName)
 
+   print("MSE_KF_linear_arr length: " + str(len(MSE_KF_linear_arr)))
+   #print("MSE_KF_dB_avg length: " + str(len(MSE_KF_dB_avg)))
+
    ##################
    ###  KalmanNet ###
    ##################
@@ -109,26 +122,31 @@ for index in range(0,len(r2)):
    KNet_model = KalmanNetNN()
    KNet_model.Build(sys_model)
    KNet_Pipeline.setModel(KNet_model)
-   KNet_Pipeline.setTrainingParams(n_Epochs=500, n_Batch=30, learningRate=1E-3, weightDecay=1E-5)
+   KNet_Pipeline.setTrainingParams(n_Epochs=10, n_Batch=30, learningRate=1E-3, weightDecay=1E-5)
 
    KNet_Pipeline.model = torch.load(modelFolder+"model_KalmanNet.pt")
+   
    KNet_Pipeline.NNTrain(N_E, train_input, train_target, N_CV, cv_input, cv_target)
    [KNet_MSE_test_linear_arr, KNet_MSE_test_linear_avg, KNet_MSE_test_dB_avg, KNet_test] = KNet_Pipeline.NNTest(N_T, test_input, test_target)
+   #[KNet_MSE_test_linear_arr, KNet_MSE_test_linear_avg, KNet_MSE_test_dB_avg, KNet_test] = KNet_Pipeline.NNTest(N_T, train_tensor, test_target)
+   KNet_Pipeline.PlotTrain_KF(KNet_MSE_test_linear_arr, KNet_MSE_test_dB_avg)
+   
    KNet_Pipeline.save()
 
 
-   print("KNet with partial model info")
-   modelFolder = 'KNet' + '/'
-   KNet_Pipeline = Pipeline_KF(strTime, "KNet", "KNetPartial_"+ dataFileName[index])
-   KNet_Pipeline.setssModel(sys_model_partialh)
-   KNet_model = KalmanNetNN()
-   KNet_model.Build(sys_model_partialh)
-   KNet_Pipeline.setModel(KNet_model)
-   KNet_Pipeline.setTrainingParams(n_Epochs=500, n_Batch=30, learningRate=1E-3, weightDecay=1E-5)
 
-   KNet_Pipeline.model = torch.load(modelFolder+"model_KalmanNet.pt")
-   KNet_Pipeline.NNTrain(N_E, train_input, train_target, N_CV, cv_input, cv_target)
-   [KNet_MSE_test_linear_arr, KNet_MSE_test_linear_avg, KNet_MSE_test_dB_avg, KNet_test] = KNet_Pipeline.NNTest(N_T, test_input, test_target)
-   KNet_Pipeline.save()
+   #print("KNet with partial model info")
+   #modelFolder = 'KNet' + '/'
+   #KNet_Pipeline = Pipeline_KF(strTime, "KNet", "KNetPartial_"+ dataFileName[index])
+   #KNet_Pipeline.setssModel(sys_model_partialh)
+   #KNet_model = KalmanNetNN()
+   #KNet_model.Build(sys_model_partialh)
+   #KNet_Pipeline.setModel(KNet_model)
+   #KNet_Pipeline.setTrainingParams(n_Epochs=10, n_Batch=30, learningRate=1E-3, weightDecay=1E-5)
+
+   #KNet_Pipeline.model = torch.load(modelFolder+"model_KalmanNet.pt")
+   #KNet_Pipeline.NNTrain(N_E, train_input, train_target, N_CV, cv_input, cv_target)
+   #[KNet_MSE_test_linear_arr, KNet_MSE_test_linear_avg, KNet_MSE_test_dB_avg, KNet_test] = KNet_Pipeline.NNTest(N_T, test_input, test_target)
+   #KNet_Pipeline.save()
 
 
