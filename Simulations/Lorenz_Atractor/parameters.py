@@ -4,12 +4,22 @@ import math
 #########################
 ### Design Parameters ###
 #########################
-m = 3
+m = 3 
 n = 3
 variance = 0
 m1x_0 = torch.ones(m, 1) 
 m1x_0_design_test = torch.ones(m, 1)
 m2x_0 = 0 * 0 * torch.eye(m)
+
+#############################
+### AUV Design Parameters ### starting practice of just placing auv before each variable so we don't need to look for names
+#############################
+auv_m = 3 
+auv_n = 5
+auv_variance = 0
+auv_m1x_0 = torch.ones(m, 1) 
+auv_m1x_0_design_test = torch.ones(m, 1)
+auv_m2x_0 = 0 * 0 * torch.eye(m)
 
 #################################################
 ### Generative Parameters For Lorenz Atractor ###
@@ -44,6 +54,7 @@ roll = roll_deg * (math.pi/180)
 yaw = yaw_deg * (math.pi/180)
 pitch = pitch_deg * (math.pi/180)
 
+#these are slightly different than the rotations from the matlab Sim_690_Rev12.m file may need to be adjusted
 RX = torch.tensor([
                 [1, 0, 0],
                 [0, math.cos(roll), -math.sin(roll)],
@@ -57,7 +68,7 @@ RZ = torch.tensor([
                 [math.sin(yaw), math.cos(yaw), 0],
                 [0, 0, 1]])
 
-RotMatrix = torch.mm(torch.mm(RZ, RY), RX)
+RotMatrix = torch.mm(torch.mm(RZ, RY), RX) #this may fix the above differences need to check this function
 H_mod = torch.mm(RotMatrix,H_design)
 
 
@@ -94,6 +105,14 @@ if(R_non_diag):
 m1x_0_mod = m1x_0
 m1x_0_mod_test = m1x_0_design_test
 m2x_0_mod = 0 * 0 * torch.eye(m)
+
+#############################
+### AUV Model Parameters ####
+#############################
+
+auv_m1x_0_mod = auv_m1x_0
+auv_m1x_0_mod_test = auv_m1x_0_design_test
+auv_m2x_0_mod = 0 * 0 * torch.eye(auv_m)
 
 # Sampling time step
 delta_t_mod = delta_t

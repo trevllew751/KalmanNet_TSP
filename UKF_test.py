@@ -3,7 +3,7 @@ import torch
 import time
 
 from filterpy.kalman import UnscentedKalmanFilter, MerweScaledSigmaPoints, JulierSigmaPoints 
-
+#where is this file? it allows us to create a UKF. we need to create one with the auv specific parameters
 
 def UKFTest(SysModel, test_input, test_target, modelKnowledge='full', allStates=True, init_cond=None):
 
@@ -15,7 +15,7 @@ def UKFTest(SysModel, test_input, test_target, modelKnowledge='full', allStates=
     # MSE [Linear]
     MSE_UKF_linear_arr = torch.empty(N_T)
     # points = JulierSigmaPoints(n=SysModel.m)
-    points = MerweScaledSigmaPoints(SysModel.m, alpha=.1, beta=2., kappa=-1)
+    points = MerweScaledSigmaPoints(SysModel.m, alpha=.1, beta=2., kappa=-1) #can be adjusted to train
 
     def fx(x, dt):
         return SysModel.f(torch.from_numpy(x).float()).numpy()

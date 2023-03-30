@@ -91,6 +91,9 @@ EKFResultName = ['EKF_rq020_T2000','EKF_rq1030_T2000','EKF_rq2040_T2000','EKF_rq
 UKFResultName = ['UKF_rq020_T2000','UKF_rq1030_T2000','UKF_rq2040_T2000','UKF_rq3050_T2000','UKF_rq4060_T2000'] 
 PFResultName = ['PF_rq020_T2000','PF_rq1030_T2000','PF_rq2040_T2000','PF_rq3050_T2000','PF_rq4060_T2000'] 
 
+
+#need to load UKF via pt file from sins_node_690.config and the optimal q -> (what format is q?)
+
 for index in range(0, len(r)):
    print("1/r2 [dB]: ", 10 * torch.log10(1/r[index]**2))
    print("1/q2 [dB]: ", 10 * torch.log10(1/q[index]**2))
@@ -98,6 +101,15 @@ for index in range(0, len(r)):
    #############################
    ### Prepare System Models ###
    #############################
+
+   #need to comment out system models + load AUV system model
+
+   # q and r are loaded from above, the rest are in the model.py and parameters.py of the Lorenz Attractor model
+   # will probably need to create new variables specifically for auv
+   # f is the state transition function and can't really be passed directly check sins_ukf.cpp in AUV_Fault_Detection for how they get f from std::bind
+   auv_sys_model = SystemModel(f, q[index], h, r[index;, T, T_test, m, n, "AUV"]) #need to figure out these parameters   
+   # m1x_0 & m2x_0 are also from model file 
+ 
    sys_model = SystemModel(f, q[index], h, r[index], T, T_test, m, n,"Lor")
    sys_model.InitSequence(m1x_0, m2x_0)
 
@@ -206,7 +218,8 @@ for index in range(0, len(r)):
    #    print("Evaluate PF Partial")
    #    [MSE_PF_linear_arr_partial, MSE_PF_linear_avg_partial, MSE_PF_dB_avg_partial, PF_out_partial] = PFTest( sys_model_partialh_searchr, test_input, test_target)
 
-   
+   # need to comment these out and perform a UKF test for the AUV
+
    print("Evaluate EKF true")
    [MSE_EKF_linear_arr, MSE_EKF_linear_avg, MSE_EKF_dB_avg, EKF_KG_array, EKF_out] = EKFTest(sys_model_optq, test_input, test_target)
    
@@ -228,7 +241,7 @@ for index in range(0, len(r)):
 
       
    
-   # Save results
+   # Save results (need to create one for AUV)
 
    FilterfolderName = 'Filters/DT case/histogram/procmis/T2000' + '/'
    torch.save({'MSE_EKF_linear_arr': MSE_EKF_linear_arr,
