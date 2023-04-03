@@ -102,6 +102,14 @@ for index in range(0, len(r)):
    ### Prepare System Models ###
    #############################
 
+   ########################### AUV 690 state transition function #############################
+   # in sins_ukf.cpp, f is defined as a partial function application of this function:
+   # VectorXd  SinsUkf::f_ins_state(VectorXd x, VectorXd v, Vector3d w_ib_b, Vector3d f_ib_b, double dt) {}
+   # where w_ib_b is a 3d vector for the vehicle's angular velocity, f_ib_b is a 3d vector of the vehicle's specific force
+   # and dt is the time step, all of which can be pulled directly from the avl_log.csv
+   # VectorXd x and VectorXd v are X-dimensional vectors that are the (current?) navigation state vectors and noise vectors respectively
+   # VectorXd x is 15x1 and VectorXd v is 6x1
+
    #need to comment out system models + load AUV system model
 
    # q and r are loaded from above, the rest are in the model.py and parameters.py of the Lorenz Attractor model
