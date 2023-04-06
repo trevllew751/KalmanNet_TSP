@@ -1,6 +1,7 @@
 import torch.nn as nn
 import torch
 import time
+import numpy as np
 
 from filterpy.kalman import UnscentedKalmanFilter, MerweScaledSigmaPoints, JulierSigmaPoints 
 #python library that allows you to create a UKF
@@ -26,7 +27,7 @@ def AUV690_UKFTest(SysModel, test_input, test_target, modelKnowledge='full', all
     #AUV specific matrices. The rest need to be entered but i'm having a hard time locating the correct version of each for the 690
     UKF = UnscentedKalmanFilter(dim_x=SysModel.m, dim_z=SysModel.n, dt=SysModel.delta_t, fx=fx, hx=hx,points=points)
     UKF.x = SysModel.m1x_0.numpy() # initial state
-    UKF.P = numpy.array([[ 3.0000e-04, 3.0000e-04, 3.0000e-03],
+    UKF.P = np.array([[ 3.0000e-04, 3.0000e-04, 3.0000e-03],
                         [1.6000e-05, 1.6000e-05, 1.6000e-05], 
                         [1.5398e-13, 1.5398e-13, 1.0000e+00],  
                         [5.8761e-16, 5.8761e-16, 5.8761e-16], 

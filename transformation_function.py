@@ -8,11 +8,11 @@ def transformation_function(x, v, w_ib_b, f_ib_b, dt):
     w_g = v[0:3]
     w_a = v[3:]
 
-    C_n_b = euler_to_matrix(x[0:3])
-    v_eb_n = x[3:6]
-    p_b = x[6:9]
-    b_g = x[9:12]
-    b_a = x[12:]
+    C_n_b = euler_to_matrix(x[0:3])  # roll[rad], pitch[rad], yaw[rad]
+    v_eb_n = x[3:6]  # v_eb_b_x, v_eb_b_y, v_eb_b_z
+    p_b = x[6:9]  # lat[rad], lon[rad], alt [m]
+    b_g = x[9:12]  # bgx, bgy, bgz
+    b_a = x[12:15]  # bax, bay, baz
 
     w_ib_b = np.add(w_ib_b, (w_g - b_g))
     f_ib_b = np.add(f_ib_b, (w_a - b_a))
